@@ -1,4 +1,4 @@
-# Warehouse-Inventory-Optimization-for-Small-Logistics-Providers
+## SmartStock
 A simple inventory system that helps small logistics providers track stock, receive reorder alerts, and reduce stockouts, overstocking, and manual errors.
 
 A proposed project to help small logistics providers track inventory, reduce manual errors, and receive reorder alerts.
