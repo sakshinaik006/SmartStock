@@ -8,17 +8,22 @@
 
 SmartStock is a lightweight, mobile-friendly inventory management and decision-support system designed for **small logistics providers and 3PL operations**.
 
-The project focuses on simplifying inventory tracking through barcode-based product identification, stock monitoring, and low-stock alerts. It is being developed as part of the **OmniKon National Hackathon 2026**.
+It simplifies inventory operations through barcode-based product identification, stock monitoring, manual stock updates, and automatic low-stock alerts.
+
+SmartStock is being developed as part of the **OmniKon National Hackathon 2026**.
 
 ---
 
-## 🌐 Demo & Repository
+## 🌐 Live Demo
 
-**Live Demo:**
+**Live Application:**
 https://smart-stock-teal.vercel.app/
 
 **GitHub Repository:**
 https://github.com/sakshinaik006/SmartStock
+
+**Judge Demo Guide:**
+[DEMO_GUIDE.md](DEMO_GUIDE.md)
 
 ---
 
@@ -29,13 +34,13 @@ Small and medium-sized logistics providers often rely on spreadsheets, manual st
 This can lead to:
 
 * Stockouts and missed replenishment
-* Overstocking and unnecessary storage costs
+* Overstocking
 * Inventory inaccuracies
 * Manual data-entry errors
 * Poor visibility into inventory levels
-* Difficulty identifying products that require attention
+* Difficulty identifying products that require replenishment
 
-Enterprise inventory systems can also be expensive or unnecessarily complex for smaller logistics operations.
+Many existing enterprise inventory systems can also be expensive or unnecessarily complex for smaller logistics operations.
 
 ### The Need
 
@@ -47,82 +52,110 @@ Small logistics providers need an inventory solution that is:
 
 ## 💡 Proposed Solution
 
-SmartStock provides a centralized inventory interface that combines **basic inventory tracking with decision support**.
+SmartStock provides a centralized inventory interface that combines **inventory tracking with basic decision support**.
 
-The current prototype focuses on the most important operational workflow:
+The current prototype focuses on the core workflow:
 
 ```text
 Identify Product
       ↓
-Track Stock
+Add / View Inventory
       ↓
-Monitor Inventory Level
+Monitor Stock
       ↓
-Compare with Reorder Point
+Add or Remove Quantity
+      ↓
+Compare with Minimum Stock
       ↓
 Show Low-Stock Alert
 ```
 
-The system is designed as a foundation that can later be extended with multi-client management and advanced inventory analytics.
+The system is designed to provide a foundation for future multi-client and inventory-intelligence capabilities.
 
 ---
 
 ## ✨ Current Features
 
-### 📷 Barcode-Based Inventory Workflow
+### 🌓 Light & Dark Mode
 
-SmartStock supports:
+Users can switch between light and dark themes for a more comfortable interface.
 
-* Barcode scanning using a device camera
+### 📷 Barcode Scanning & Manual Barcode Entry
+
+Products can be identified using:
+
+* Device-camera barcode scanning
 * Manual barcode entry
-* Product identification through barcode/SKU information
-* Faster inventory lookup compared with manual searching
 
-### 📦 Inventory Management
+This provides a faster alternative to manually searching for products.
 
-The current prototype provides:
+### 📊 Stock Monitoring
 
-* Product/SKU information
-* Inventory visibility
-* Stock-level monitoring
-* Product search
-* Inventory status information
+Users can view and monitor inventory information, including:
+
+* Product name
+* Barcode
+* Current stock quantity
+* Minimum stock level
+* Stock status
+
+### ➕ Add New Product
+
+Users can create a new inventory item by providing:
+
+* Product name
+* Barcode
+* Initial stock quantity
+* Minimum stock level
+
+### 🔄 Manual Stock Addition & Removal
+
+Users can manually increase or decrease the quantity of an existing product.
+
+```text
+Current Stock
+      ↓
+Add / Remove Quantity
+      ↓
+Updated Stock
+```
 
 ### ⚠️ Low-Stock Alerts
 
-SmartStock compares the available inventory against a configured reorder point.
+SmartStock identifies products whose stock falls below their configured minimum stock level.
 
 ```text
-IF Current Stock ≤ Reorder Point
+IF Current Stock < Minimum Stock
         ↓
-   LOW STOCK
-        ↓
- Reorder Recommended
+   LOW STOCK ALERT
 ```
 
-This helps warehouse operators identify products that may require replenishment.
+This helps users identify products that may require replenishment.
 
 ---
 
 ## 🔄 Development Status
 
-To keep the project transparent, the current implementation is divided into three categories.
+To keep the project transparent, features are categorized according to their current implementation status.
 
-| Feature                          | Status               |
-| -------------------------------- | -------------------- |
-| Barcode-based inventory workflow | ✅ Implemented        |
-| Manual barcode entry             | ✅ Implemented        |
-| Inventory search                 | ✅ Implemented        |
-| Stock monitoring                 | ✅ Implemented        |
-| Low-stock alerts                 | ✅ Implemented        |
-| Stock-in workflow                | 🔄 MVP / In Progress |
-| Stock-out workflow               | 🔄 MVP / In Progress |
-| Multi-client inventory           | 🔜 Future            |
-| ABC inventory classification     | 🔜 Future            |
-| Dead-stock detection             | 🔜 Future            |
-| Demand forecasting               | 🔜 Future            |
+| Feature                      | Status        |
+| ---------------------------- | ------------- |
+| Light / Dark Mode            | ✅ Implemented |
+| Barcode Scanning             | ✅ Implemented |
+| Manual Barcode Entry         | ✅ Implemented |
+| Inventory Monitoring         | ✅ Implemented |
+| Add New Product              | ✅ Implemented |
+| Initial Stock Configuration  | ✅ Implemented |
+| Minimum Stock Configuration  | ✅ Implemented |
+| Manual Stock Addition        | ✅ Implemented |
+| Manual Stock Removal         | ✅ Implemented |
+| Low-Stock Alerts             | ✅ Implemented |
+| Multi-Client Inventory       | 🔜 Future     |
+| ABC Inventory Classification | 🔜 Future     |
+| Dead-Stock Detection         | 🔜 Future     |
+| Demand Forecasting           | 🔜 Future     |
 
-> **Important:** Features marked as **Future** are part of the planned product roadmap and are not presented as completed functionality in the current hackathon prototype.
+> **Note:** Features marked as **Future** are planned extensions and are not presented as completed functionality in the current hackathon prototype.
 
 ---
 
@@ -130,7 +163,7 @@ To keep the project transparent, the current implementation is divided into thre
 
 ```text
                     ┌─────────────────────┐
-                    │       User          │
+                    │        User         │
                     │ Warehouse Operator  │
                     └──────────┬──────────┘
                                │
@@ -205,11 +238,12 @@ SmartStock/
 │
 ├── docker-compose.yml
 │
+├── README.md
+├── DEMO_GUIDE.md
 ├── LICENSE
 ├── SECURITY.md
 ├── CONTRIBUTING.md
-├── CODE_OF_CONDUCT.md
-└── README.md
+└── CODE_OF_CONDUCT.md
 ```
 
 ---
@@ -217,8 +251,6 @@ SmartStock/
 ## ⚙️ Local Setup
 
 ### Prerequisites
-
-Install the following before running SmartStock locally:
 
 * Node.js
 * npm
@@ -255,7 +287,7 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-Start the FastAPI server:
+Start the backend:
 
 ```bash
 uvicorn main:app --reload
@@ -289,7 +321,7 @@ Frontend:
 http://localhost:3000
 ```
 
-> If the backend entry point or commands change during development, update these instructions to match the repository.
+> If the project's actual entry points or commands change, update these instructions accordingly.
 
 ---
 
@@ -311,33 +343,26 @@ docker compose down
 
 ## 📊 Current Decision Logic
 
-The current prototype uses a simple rule-based reorder-point approach.
+The current prototype uses a simple minimum-stock rule.
 
 ```text
 Current Stock
       │
       ▼
-Compare with Reorder Point
+Compare with Minimum Stock
       │
-      ├── Stock > Reorder Point
-      │       ↓
-      │    Normal
+      ├── Current Stock ≥ Minimum Stock
+      │          ↓
+      │       Normal
       │
-      └── Stock ≤ Reorder Point
-              ↓
-        Low-Stock Alert
+      └── Current Stock < Minimum Stock
+                 ↓
+          Low-Stock Alert
 ```
 
-This approach is intentionally simple and explainable for the MVP.
+This rule is intentionally simple and explainable for the MVP.
 
-Future versions can incorporate:
-
-* Historical demand
-* Lead time
-* Safety stock
-* Demand variability
-* Seasonal patterns
-* Forecasted consumption
+Future versions may incorporate historical demand, lead time, safety stock, demand variability, and forecasting.
 
 ---
 
@@ -348,12 +373,14 @@ Future versions can incorporate:
 **Current MVP**
 
 * Product/SKU management
-* Inventory dashboard
 * Barcode workflow
-* Inventory search
-* Stock monitoring
+* Inventory monitoring
+* Light/dark mode
+* Initial stock configuration
+* Minimum stock configuration
+* Manual stock addition
+* Manual stock removal
 * Low-stock alerts
-* Stock-in/out workflow
 
 ### Phase 2 — Multi-Client Inventory
 
@@ -373,21 +400,9 @@ Future versions can incorporate:
 * ABC inventory classification
 * Dead-stock detection
 * Demand forecasting
+* Intelligent reorder recommendations
 * Safety-stock recommendations
-* Intelligent reorder quantities
 * Inventory risk scoring
-
-### Long-Term Vision
-
-```text
-Inventory Tracking
-       ↓
-Decision Support
-       ↓
-Predictive Analytics
-       ↓
-Inventory Optimization
-```
 
 ---
 
@@ -396,13 +411,13 @@ Inventory Optimization
 SmartStock aims to help small logistics providers:
 
 * Improve inventory visibility
-* Reduce avoidable stockouts
 * Identify low-stock products earlier
 * Reduce repetitive manual inventory work
 * Improve inventory accuracy
-* Create a foundation for data-driven inventory decisions
+* Simplify basic inventory operations
+* Build a foundation for data-driven inventory decisions
 
-Quantitative business impact will be evaluated through future user testing and operational data. No unverified performance claims are made for the current prototype.
+Quantitative business impact has not yet been measured through user testing or operational datasets. Therefore, no unsupported performance or accuracy claims are made.
 
 ---
 
@@ -415,11 +430,11 @@ These include:
 * Backend API validation
 * Database access through SQLAlchemy
 * Environment variables for configuration and secrets
-* Avoiding committed credentials and sensitive configuration
+* Avoiding committed credentials
 * Separation of frontend and backend responsibilities
-* Planned client-level data isolation for the multi-client phase
+* Planned client-level data isolation for future multi-client functionality
 
-For more information, see [`SECURITY.md`](SECURITY.md).
+See [SECURITY.md](SECURITY.md) for more information.
 
 ---
 
@@ -427,7 +442,7 @@ For more information, see [`SECURITY.md`](SECURITY.md).
 
 Suggestions, bug reports, and improvements are welcome.
 
-Please read [`CONTRIBUTING.md`](CONTRIBUTING.md) before contributing.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) before contributing.
 
 ---
 
@@ -435,7 +450,7 @@ Please read [`CONTRIBUTING.md`](CONTRIBUTING.md) before contributing.
 
 SmartStock is released under the **MIT License**.
 
-See [`LICENSE`](LICENSE) for the complete license text.
+See [LICENSE](LICENSE) for the complete license text.
 
 ---
 
@@ -463,18 +478,19 @@ See [`LICENSE`](LICENSE) for the complete license text.
 
 **OmniKon National Hackathon 2026**
 
-SmartStock is being developed as a lightweight inventory solution focused on improving stock visibility and decision-making for small logistics providers.
+SmartStock is being developed as a lightweight inventory solution focused on improving stock visibility and basic inventory decision-making for small logistics providers.
 
 ---
 
 ## 📎 Project Links
 
-| Resource     | Link                                        |
-| ------------ | ------------------------------------------- |
-| 🌐 Live Demo | https://smart-stock-teal.vercel.app/        |
-| 💻 GitHub    | https://github.com/sakshinaik006/SmartStock |
-| 📚 API Docs  | `http://localhost:8000/docs`                |
-| 📜 License   | MIT                                         |
+| Resource            | Link                                        |
+| ------------------- | ------------------------------------------- |
+| 🌐 Live Demo        | https://smart-stock-teal.vercel.app/        |
+| 💻 GitHub           | https://github.com/sakshinaik006/SmartStock |
+| 📖 Judge Demo Guide | [DEMO_GUIDE.md](DEMO_GUIDE.md)              |
+| 📚 API Docs         | `http://localhost:8000/docs`                |
+| 📜 License          | [MIT](LICENSE)                              |
 
 ---
 
