@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { LayoutDashboard, Package, Settings, Search, Moon, Sun, Scan, AlertTriangle, Plus, Minus, Trash2, Camera, CheckCircle } from "lucide-react";
+import { LayoutDashboard, Package, Settings, Search, Moon, Sun, Scan, AlertTriangle, Plus, Minus, Trash2, Camera, CheckCircle, X } from "lucide-react";
 
 export default function Dashboard() {
   const [darkMode, setDarkMode] = useState(false);
@@ -17,6 +17,10 @@ export default function Dashboard() {
   const [newItem, setNewItem] = useState({ sku: "", name: "", barcode: "", stock: 0, min: 0 });
   const [bulkAmounts, setBulkAmounts] = useState({});
   const [scanMessage, setScanMessage] = useState("");
+  
+  // Scanned product modal state
+  const [scannedProduct, setScannedProduct] = useState(null);
+  const [scanModalQty, setScanModalQty] = useState(1);
 
   useEffect(() => {
     if (darkMode) {
@@ -52,16 +56,22 @@ export default function Dashboard() {
           (decodedText) => {
             const matched = inventory.find(item => item.barcode.toLowerCase() === decodedText.toLowerCase());
             if (matched) {
-              setSearchQuery(decodedText);
-              setScanMessage(`Success: Found ${matched.name}`);
+              setScannedProduct(matched);
+              setScanModalQty(1);
+              setShowScanner(false);
             } else {
               setScanMessage(`Product not found for barcode: ${decodedText}`);
+              setShowScanner(false);
+              setTimeout(() => setScanMessage(""), 4000);
             }
-            setShowScanner(false);
-            setTimeout(() => setScanMessage(""), 4000);
           },
           () => {}
-        ).catch(err => console.log(err));
+        ).catch(err => {
+          console.log("Camera access error:", err);
+          setScanMessage("Camera permission denied or unavailable.");
+          setShowScanner(false);
+          setTimeout(() => setScanMessage(""), 4000);
+        });
       });
     }
     
@@ -82,6 +92,28 @@ export default function Dashboard() {
       return item;
     }));
     setBulkAmounts({ ...bulkAmounts, [id]: "" });
+  };
+
+  const handleModalStockUpdate = (isRemoval) => {
+    if (!scannedProduct) return;
+    const qty = Number(scanModalQty) || 1;
+    if (isRemoval && qty > scannedProduct.stock) {
+      alert("Cannot remove more items than current stock.");
+      return;
+    }
+
+    setInventory(inventory.map(item => {
+      if (item.id === scannedProduct.id) {
+        const updatedStock = isRemoval ? Math.max(0, item.stock - qty) : item.stock + qty;
+        return { ...item, stock: updatedStock };
+      }
+      return item;
+    }));
+
+    setScanMessage(`Successfully updated stock for ${scannedProduct.name}`);
+    setScannedProduct(null);
+    setSearchQuery(""); // Reset search filter back to full table view
+    setTimeout(() => setScanMessage(""), 4000);
   };
 
   const deleteItem = (id) => {
@@ -235,6 +267,7 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* Barcode Scanner Modal */}
         {showScanner && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl w-[420px] border border-gray-200 dark:border-gray-800 shadow-2xl">
@@ -249,16 +282,16 @@ export default function Dashboard() {
                 />
                 <button onClick={() => {
                   if (manualBarcode.trim()) {
-                    setSearchQuery(manualBarcode.trim());
                     const matched = inventory.find(i => i.barcode.toLowerCase() === manualBarcode.trim().toLowerCase());
                     if (matched) {
-                      setScanMessage(`Success: Found ${matched.name}`);
+                      setScannedProduct(matched);
+                      setScanModalQty(1);
                     } else {
                       setScanMessage(`Product not found for barcode: ${manualBarcode}`);
+                      setTimeout(() => setScanMessage(""), 4000);
                     }
                     setShowScanner(false);
                     setManualBarcode("");
-                    setTimeout(() => setScanMessage(""), 4000);
                   }
                 }} className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl">Search</button>
               </div>
@@ -267,6 +300,46 @@ export default function Dashboard() {
           </div>
         )}
 
+        {/* Scanned Product Details & Adjustment Modal Overlay */}
+        {scannedProduct && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl w-[440px] border border-gray-200 dark:border-gray-800 shadow-2xl relative">
+              <button onClick={() => setScannedProduct(null)} className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 dark:hover:text-white"><X className="w-5 h-5"/></button>
+              <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-white flex items-center gap-2"><Package className="w-5 h-5 text-blue-600"/> Scanned Product Details</h3>
+              
+              <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl space-y-3 mb-6 border border-gray-100 dark:border-gray-800">
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">SKU:</span> <span className="font-semibold text-gray-800 dark:text-gray-200">{scannedProduct.sku}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Product Name:</span> <span className="font-semibold text-gray-800 dark:text-gray-200">{scannedProduct.name}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Barcode:</span> <span className="font-mono text-gray-800 dark:text-gray-200">{scannedProduct.barcode}</span></div>
+                <div className="flex justify-between items-center"><span className="text-gray-500 dark:text-gray-400">Current Stock Level:</span> <span className="px-3 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 font-bold rounded-lg text-sm">{scannedProduct.stock} units</span></div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Adjustment Quantity</label>
+                  <input 
+                    type="number" 
+                    min="1" 
+                    value={scanModalQty} 
+                    onChange={(e) => setScanModalQty(e.target.value)} 
+                    className="w-full p-2.5 border rounded-xl dark:bg-slate-800 dark:border-gray-700 dark:text-white outline-none text-center font-bold"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button onClick={() => handleModalStockUpdate(false)} className="flex-1 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-colors">
+                    <Plus className="w-4 h-4"/> Add Stock
+                  </button>
+                  <button onClick={() => handleModalStockUpdate(true)} className="flex-1 py-3 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-colors">
+                    <Minus className="w-4 h-4"/> Remove Stock
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Add New Item Modal */}
         {showAddModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl w-96 border border-gray-200 dark:border-gray-800 shadow-2xl">
