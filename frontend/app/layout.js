@@ -1,6 +1,7 @@
+import "./globals.css";
 export const metadata = {
-  title: "SmartStock - OmniKon 2026",
-  description: "Inventory decision-support system",
+  title: "SmartStock",
+  description: "Inventory decision support system",
 };
 
 export default function RootLayout({ children }) {

@@ -1,244 +1,250 @@
-﻿"use client";
-import React, { useState, useEffect } from "react";
+"use client";
+import { useState, useEffect } from "react";
+import { LayoutDashboard, Package, Settings, Search, Moon, Sun, Scan, AlertTriangle, Plus, Minus, Trash2, Camera } from "lucide-react";
 
 export default function Dashboard() {
-  const [clients, setClients] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [selectedClient, setSelectedClient] = useState("");
-  const [barcodeSearch, setBarcodeSearch] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState("");
-  
-  // Transaction Modal State
-  const [modalProduct, setModalProduct] = useState(null);
-  const [txType, setTxType] = useState("STOCK_IN");
-  const [txQty, setTxQty] = useState(1);
-  const [txNote, setTxNote] = useState("");
-
-  const fetchData = async () => {
-    try {
-      const clientRes = await fetch("http://localhost:8000/api/clients");
-      const clientData = await clientRes.json();
-      setClients(clientData);
-
-      let url = "http://localhost:8000/api/products";
-      if (selectedClient) {
-        url += `?client_id=${selectedClient}`;
-      }
-      const prodRes = await fetch(url);
-      const prodData = await prodRes.json();
-      setProducts(prodData);
-    } catch (err) {
-      console.error("Error fetching data:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [darkMode, setDarkMode] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [inventory, setInventory] = useState([
+    { id: 1, sku: "SKU 1001", name: "Wireless Mouse", barcode: "8901234567890", stock: 15, min: 10 },
+    { id: 2, sku: "SKU 1002", name: "Mechanical Keyboard", barcode: "8901234567891", stock: 3, min: 10 },
+    { id: 3, sku: "SKU 1003", name: "USB C Cable", barcode: "8901234567892", stock: 50, min: 20 },
+    { id: 4, sku: "SKU 1004", name: "Headphones", barcode: "8423748938971", stock: 20, min: 10 }
+  ]);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
+  const [manualBarcode, setManualBarcode] = useState("");
+  const [newItem, setNewItem] = useState({ sku: "", name: "", barcode: "", stock: 0, min: 0 });
+  const [bulkAmounts, setBulkAmounts] = useState({});
 
   useEffect(() => {
-    fetchData();
-  }, [selectedClient]);
-
-  const handleBarcodeSubmit = async (e) => {
-    e.preventDefault();
-    if (!barcodeSearch) return;
-    try {
-      const res = await fetch(`http://localhost:8000/api/products/barcode/${barcodeSearch}`);
-      if (!res.ok) throw new Error("Product not found");
-      const data = await res.json();
-      const fullProd = products.find(p => p.id === data.id);
-      if (fullProd) {
-        setModalProduct(fullProd);
-        setMessage("");
-      }
-    } catch (err) {
-      setMessage("Product not found for barcode: " + barcodeSearch);
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
     }
-  };
+  }, [darkMode]);
 
-  const handleTransaction = async (e) => {
-    e.preventDefault();
-    if (!modalProduct) return;
-    try {
-      const res = await fetch("http://localhost:8000/api/transactions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          product_id: modalProduct.id,
-          type: txType,
-          quantity: parseInt(txQty),
-          reference_note: txNote
-        })
+  useEffect(() => {
+    let scanner = null;
+    let isComponentMounted = true;
+    
+    if (showScanner) {
+      import("html5-qrcode").then(({ Html5Qrcode }) => {
+        if (!isComponentMounted) return;
+        scanner = new Html5Qrcode("reader");
+        scanner.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: { width: 250, height: 250 } },
+          (decodedText) => {
+            setSearchQuery(decodedText);
+            setShowScanner(false);
+          },
+          () => {}
+        ).catch(err => console.log(err));
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "Transaction failed");
-      
-      setMessage(`Success! New stock level: ${data.current_stock}`);
-      setModalProduct(null);
-      setTxQty(1);
-      setTxNote("");
-      fetchData();
-    } catch (err) {
-      setMessage(err.message);
+    }
+    
+    return () => {
+      isComponentMounted = false;
+      if (scanner) {
+        scanner.stop().then(() => scanner.clear()).catch(() => {});
+      }
+    };
+  }, [showScanner]);
+
+  const updateStock = (id, change) => {
+    setInventory(inventory.map(item => 
+      item.id === id ? { ...item, stock: Math.max(0, item.stock + change) } : item
+    ));
+    setBulkAmounts({ ...bulkAmounts, [id]: "" });
+  };
+
+  const deleteItem = (id) => {
+    setInventory(inventory.filter(item => item.id !== id));
+  };
+
+  const handleAddItem = (e) => {
+    e.preventDefault();
+    if (newItem.sku && newItem.name) {
+      setInventory([...inventory, { ...newItem, id: Date.now(), stock: Number(newItem.stock), min: Number(newItem.min) }]);
+      setShowAddModal(false);
+      setNewItem({ sku: "", name: "", barcode: "", stock: 0, min: 0 });
     }
   };
+
+  const filteredInventory = inventory.filter(item => 
+    item.sku.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.barcode.includes(searchQuery)
+  );
+
+  const lowStockItems = inventory.filter(item => item.stock < item.min);
 
   return (
-    <main className="min-h-screen p-8 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">SmartStock Dashboard</h1>
-          <p className="text-slate-500">OmniKon National Hackathon 2026</p>
+    <div className="flex h-screen overflow-hidden relative">
+      <aside className="w-64 bg-white dark:bg-slate-900 border-r border-gray-200 dark:border-gray-800 flex flex-col z-10">
+        <div className="h-20 flex items-center px-6 border-b border-gray-100 dark:border-gray-800">
+          <span className="text-xl font-black text-gray-800 dark:text-white flex items-center gap-3">
+            <div className="p-2 bg-blue-600 text-white rounded-lg"><LayoutDashboard className="w-5 h-5" /></div>
+            SmartStock
+          </span>
         </div>
-        <div className="flex gap-4">
-          <select 
-            value={selectedClient} 
-            onChange={(e) => setSelectedClient(e.target.value)}
-            className="border border-slate-300 rounded-lg px-4 py-2 bg-white"
-          >
-            <option value="">All Clients (Multi-Client View)</option>
-            {clients.map(c => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </select>
-        </div>
-      </div>
+        <nav className="flex-1 p-4 space-y-2 mt-4">
+          <a href="#" className="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-600/30 font-medium">
+            <Package className="w-5 h-5" /> Inventory
+          </a>
+          <a href="#" className="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-slate-800 rounded-xl font-medium transition-colors">
+            <Settings className="w-5 h-5" /> Settings
+          </a>
+        </nav>
+      </aside>
 
-      {message && (
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg">
-          {message}
-        </div>
-      )}
+      <main className="flex-1 flex flex-col overflow-hidden z-10">
+        <header className="h-20 bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between px-8">
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Warehouse Inventory System</h1>
+          </div>
+          <div className="flex items-center gap-6">
+            <div className="relative w-72">
+              <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-[50%] text-gray-400" />
+              <input 
+                type="text" 
+                placeholder="Search by SKU or Name" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none dark:text-white transition-all" 
+              />
+            </div>
+            <button onClick={() => setDarkMode(!darkMode)} className="p-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
+              {darkMode ? <Sun className="w-5 h-5 text-gray-400" /> : <Moon className="w-5 h-5 text-gray-600" />}
+            </button>
+          </div>
+        </header>
 
-      {/* Barcode Search / Scanner Simulation */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-8 flex gap-4 items-center">
-        <form onSubmit={handleBarcodeSubmit} className="flex gap-4 flex-1">
-          <input 
-            type="text" 
-            placeholder="Scan or enter barcode (e.g., 890100100101)..." 
-            value={barcodeSearch}
-            onChange={(e) => setBarcodeSearch(e.target.value)}
-            className="border border-slate-300 rounded-lg px-4 py-2 flex-1"
-          />
-          <button type="submit" className="bg-slate-900 text-white px-6 py-2 rounded-lg hover:bg-slate-800">
-            Lookup Barcode
-          </button>
-        </form>
-      </div>
+        <div className="flex-1 overflow-auto p-8 space-y-6 dark:bg-slate-950">
+          <div className="flex justify-between items-center bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
+            <div>
+              <h2 className="text-xl font-bold text-gray-800 dark:text-white">Live stock tracking and alert system</h2>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setShowScanner(true)} className="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-gray-800 dark:text-white px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-colors">
+                <Scan className="w-4 h-4" /> Scan Barcode
+              </button>
+              <button onClick={() => setShowAddModal(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-colors">
+                <Plus className="w-4 h-4" /> Add Item
+              </button>
+            </div>
+          </div>
 
-      {/* Inventory Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 text-sm">
-              <th className="p-4">Client</th>
-              <th className="p-4">Product Name</th>
-              <th className="p-4">SKU</th>
-              <th className="p-4">Barcode</th>
-              <th className="p-4">Stock</th>
-              <th className="p-4">Reorder Pt</th>
-              <th className="p-4">ABC Class</th>
-              <th className="p-4">Status</th>
-              <th className="p-4">Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {products.map(p => (
-              <tr key={p.id} className="hover:bg-slate-50">
-                <td className="p-4 font-medium text-slate-700">{p.client_name}</td>
-                <td className="p-4 text-slate-900 font-semibold">{p.name}</td>
-                <td className="p-4 text-slate-500 font-mono text-sm">{p.sku}</td>
-                <td className="p-4 text-slate-500 font-mono text-sm">{p.barcode}</td>
-                <td className="p-4 font-bold">{p.current_stock}</td>
-                <td className="p-4 text-slate-500">{p.reorder_point}</td>
-                <td className="p-4">
-                  <span className={`px-2 py-1 rounded text-xs font-bold ${p.abc_classification === 'A' ? 'bg-purple-100 text-purple-700' : p.abc_classification === 'B' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-700'}`}>
-                    Class {p.abc_classification}
-                  </span>
-                </td>
-                <td className="p-4">
-                  {p.is_low_stock ? (
-                    <span className="bg-red-100 text-red-700 text-xs px-2 py-1 rounded font-semibold">Low Stock</span>
-                  ) : (
-                    <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded font-semibold">Healthy</span>
-                  )}
-                </td>
-                <td className="p-4">
-                  <button 
-                    onClick={() => setModalProduct(p)}
-                    className="bg-indigo-600 text-white text-xs px-3 py-1.5 rounded hover:bg-indigo-700"
-                  >
-                    Adjust Stock
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Transaction Modal */}
-      {modalProduct && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-xl">
-            <h2 className="text-xl font-bold mb-4">Stock Adjustment</h2>
-            <p className="text-slate-600 mb-4">Product: <span className="font-semibold text-slate-900">{modalProduct.name}</span></p>
-            
-            <form onSubmit={handleTransaction} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Transaction Type</label>
-                <select 
-                  value={txType} 
-                  onChange={(e) => setTxType(e.target.value)}
-                  className="w-full border border-slate-300 rounded-lg p-2"
-                >
-                  <option value="STOCK_IN">Stock In (Receive Inventory)</option>
-                  <option value="STOCK_OUT">Stock Out (Dispatch Inventory)</option>
-                </select>
+          {lowStockItems.length > 0 && (
+            <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-6 rounded-r-2xl shadow-sm">
+              <div className="flex items-center gap-2 text-amber-700 dark:text-amber-500 font-bold mb-3">
+                <AlertTriangle className="w-5 h-5" /> Low Stock Warnings ({lowStockItems.length})
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Quantity</label>
-                <input 
-                  type="number" 
-                  min="1" 
-                  value={txQty} 
-                  onChange={(e) => setTxQty(e.target.value)}
-                  className="w-full border border-slate-300 rounded-lg p-2"
-                  required
-                />
+              <div className="space-y-2">
+                {lowStockItems.map(item => (
+                  <div key={item.id} className="bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-900/50 p-4 rounded-xl flex justify-between items-center">
+                    <span className="text-gray-800 dark:text-gray-200 font-medium">{item.name} <span className="text-gray-500 dark:text-gray-400 font-normal">({item.sku})</span></span>
+                    <span className="text-red-600 dark:text-red-400 font-bold">Stock: {item.stock} / Min: {item.min}</span>
+                  </div>
+                ))}
               </div>
+            </div>
+          )}
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Reference Note</label>
-                <input 
-                  type="text" 
-                  placeholder="e.g. Purchase Order #1042" 
-                  value={txNote} 
-                  onChange={(e) => setTxNote(e.target.value)}
-                  className="w-full border border-slate-300 rounded-lg p-2"
-                />
-              </div>
-
-              <div className="flex justify-end gap-3 mt-6">
-                <button 
-                  type="button" 
-                  onClick={() => setModalProduct(null)}
-                  className="px-4 py-2 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit" 
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-                >
-                  Confirm
-                </button>
-              </div>
-            </form>
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+            <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
+              <h2 className="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                <Package className="w-5 h-5" /> Product Inventory
+              </h2>
+            </div>
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-50/50 dark:bg-slate-800/50 text-gray-500 dark:text-gray-400 text-sm">
+                  <th className="p-5 font-semibold">SKU</th>
+                  <th className="p-5 font-semibold">Product Name</th>
+                  <th className="p-5 font-semibold">Barcode</th>
+                  <th className="p-5 font-semibold">Stock Level</th>
+                  <th className="p-5 font-semibold text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredInventory.map(item => (
+                  <tr key={item.id} className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
+                    <td className="p-5 text-gray-500 dark:text-gray-400 text-sm">{item.sku}</td>
+                    <td className="p-5 font-medium text-gray-800 dark:text-gray-200">{item.name}</td>
+                    <td className="p-5 text-gray-400 text-sm">{item.barcode}</td>
+                    <td className="p-5">
+                      <span className={`px-3 py-1.5 rounded-lg text-xs font-bold ${item.stock < item.min ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'}`}>
+                        {item.stock} units
+                      </span>
+                    </td>
+                    <td className="p-5 text-right flex justify-end gap-2 items-center">
+                      <input 
+                        type="number" 
+                        min="1" 
+                        placeholder="Qty" 
+                        className="w-16 p-1.5 border rounded-lg dark:bg-slate-800 dark:border-gray-700 outline-none text-center dark:text-white"
+                        value={bulkAmounts[item.id] || ""}
+                        onChange={(e) => setBulkAmounts({ ...bulkAmounts, [item.id]: e.target.value })}
+                      />
+                      <button onClick={() => updateStock(item.id, Number(bulkAmounts[item.id]) || 1)} className="p-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"><Plus className="w-4 h-4" /></button>
+                      <button onClick={() => updateStock(item.id, -(Number(bulkAmounts[item.id]) || 1))} className="p-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition-colors"><Minus className="w-4 h-4" /></button>
+                      <button onClick={() => deleteItem(item.id)} className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
+                    </td>
+                  </tr>
+                ))}
+                {filteredInventory.length === 0 && (
+                  <tr>
+                    <td colSpan="5" className="p-8 text-center text-gray-500 dark:text-gray-400">No products found</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
-      )}
-    </main>
+
+        {showScanner && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl w-96 border border-gray-200 dark:border-gray-800 shadow-2xl">
+              <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-white flex items-center gap-2"><Camera className="w-5 h-5"/> Scan or Enter Barcode</h3>
+              <div className="bg-black w-full min-h-[250px] rounded-xl overflow-hidden relative mb-4" id="reader"></div>
+              <div className="flex gap-2">
+                <input 
+                  placeholder="Manual Entry" 
+                  className="w-full p-2 border rounded dark:bg-slate-800 dark:border-gray-700 dark:text-white outline-none" 
+                  value={manualBarcode} 
+                  onChange={e => setManualBarcode(e.target.value)} 
+                />
+                <button onClick={() => { setSearchQuery(manualBarcode); setShowScanner(false); setManualBarcode(""); }} className="px-4 py-2 bg-blue-600 text-white rounded">Search</button>
+              </div>
+              <button onClick={() => setShowScanner(false)} className="w-full mt-4 px-4 py-2 bg-gray-200 dark:bg-slate-700 rounded text-gray-800 dark:text-white">Close</button>
+            </div>
+          </div>
+        )}
+
+        {showAddModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl w-96 border border-gray-200 dark:border-gray-800 shadow-2xl">
+              <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">Add New Item</h3>
+              <form onSubmit={handleAddItem} className="space-y-4">
+                <input required placeholder="SKU" className="w-full p-2 border rounded dark:bg-slate-800 dark:border-gray-700 dark:text-white outline-none" value={newItem.sku} onChange={e => setNewItem({...newItem, sku: e.target.value})} />
+                <input required placeholder="Product Name" className="w-full p-2 border rounded dark:bg-slate-800 dark:border-gray-700 dark:text-white outline-none" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} />
+                <input placeholder="Barcode" className="w-full p-2 border rounded dark:bg-slate-800 dark:border-gray-700 dark:text-white outline-none" value={newItem.barcode} onChange={e => setNewItem({...newItem, barcode: e.target.value})} />
+                <div className="flex gap-4">
+                  <input required type="number" placeholder="Initial Stock" className="w-full p-2 border rounded dark:bg-slate-800 dark:border-gray-700 dark:text-white outline-none" value={newItem.stock} onChange={e => setNewItem({...newItem, stock: e.target.value})} />
+                  <input required type="number" placeholder="Min Alert" className="w-full p-2 border rounded dark:bg-slate-800 dark:border-gray-700 dark:text-white outline-none" value={newItem.min} onChange={e => setNewItem({...newItem, min: e.target.value})} />
+                </div>
+                <div className="flex justify-end gap-2 mt-6">
+                  <button type="button" onClick={() => setShowAddModal(false)} className="px-4 py-2 bg-gray-200 dark:bg-slate-700 rounded text-gray-800 dark:text-white">Cancel</button>
+                  <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">Save Item</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
   );
 }
