@@ -2,20 +2,19 @@
 
 > **Lightweight Inventory Decision-Support System for Small Logistics Providers**
 
-[![Live Demo](https://img.shields.io/badge/Live-Demo-2ea44f?style=for-the-badge)](https://smart-stock-teal.vercel.app/#)
+[![Live Demo](https://img.shields.io/badge/Live-Demo-2ea44f?style=for-the-badge)](https://smart-stock-teal.vercel.app/)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge\&logo=github)](https://github.com/sakshinaik006/SmartStock)
+[![Hackathon](https://img.shields.io/badge/OmniKon-National%20Hackathon%202026-blue?style=for-the-badge)](#)
 
 SmartStock is a lightweight, mobile-friendly inventory management and decision-support system designed for **small logistics providers and 3PL operations**.
 
-It helps users track inventory, record stock movements, identify low-stock products, and reduce manual inventory errors through barcode-based product identification and automated reorder alerts.
-
-Built as part of the **OmniKon National Hackathon 2026**.
+The project focuses on simplifying inventory tracking through barcode-based product identification, stock monitoring, and low-stock alerts. It is being developed as part of the **OmniKon National Hackathon 2026**.
 
 ---
 
-## 🚀 Live Demo
+## 🌐 Demo & Repository
 
-**Try SmartStock:**
+**Live Demo:**
 https://smart-stock-teal.vercel.app/
 
 **GitHub Repository:**
@@ -25,181 +24,142 @@ https://github.com/sakshinaik006/SmartStock
 
 ## 📌 Problem Statement
 
-Small and medium-sized logistics providers often depend on spreadsheets, manual stock counts, and fragmented inventory records.
+Small and medium-sized logistics providers often rely on spreadsheets, manual stock counts, and basic inventory records.
 
-This can result in:
+This can lead to:
 
-* ❌ Stockouts and missed replenishment
-* ❌ Overstocking and unnecessary storage costs
-* ❌ Inaccurate inventory records
-* ❌ Manual data-entry errors
-* ❌ Limited visibility into stock movement
-* ❌ Difficulty managing inventory for multiple clients
+* Stockouts and missed replenishment
+* Overstocking and unnecessary storage costs
+* Inventory inaccuracies
+* Manual data-entry errors
+* Poor visibility into inventory levels
+* Difficulty identifying products that require attention
 
-Many enterprise inventory management systems are expensive or unnecessarily complex for smaller logistics operations.
+Enterprise inventory systems can also be expensive or unnecessarily complex for smaller logistics operations.
 
-### The Opportunity
+### The Need
 
 Small logistics providers need an inventory solution that is:
 
-**Simple → Affordable → Mobile-friendly → Action-oriented**
+**Simple • Affordable • Mobile-Friendly • Action-Oriented**
 
 ---
 
-## 💡 Our Solution
+## 💡 Proposed Solution
 
-SmartStock provides a centralized inventory platform that combines **stock tracking with decision support**.
-
-Instead of simply showing how much stock exists, SmartStock helps users identify **which products require attention**.
-
-### Core workflow
-
-```text
-Add / Scan Product
-        ↓
-Track Inventory
-        ↓
-Record Stock In / Stock Out
-        ↓
-Monitor Stock Levels
-        ↓
-Detect Low Stock
-        ↓
-Generate Reorder Alert
-```
-
-The system is designed to evolve from basic inventory tracking into an intelligent inventory decision-support platform.
-
----
-
-## ✨ Key Features
-
-### 📦 1. Inventory Management
-
-* Add and manage products using SKU information
-* Store product names, barcodes, and stock levels
-* Search inventory by SKU or product name
-* View current inventory in a centralized dashboard
-
-### 📷 2. Barcode-Based Tracking
-
-* Browser-based barcode scanning using a device camera
-* Manual barcode entry as an alternative
-* Faster product identification
-* Reduces repetitive manual data entry
-
-### 📥 3. Stock-In & Stock-Out
-
-Users can record inventory movement directly from the system.
-
-**Stock-In**
-
-```text
-Product → Quantity → Add to Inventory
-```
-
-**Stock-Out**
-
-```text
-Product → Quantity → Remove from Inventory
-```
-
-Inventory levels are updated based on these transactions.
-
-### ⚠️ 4. Automated Low-Stock Alerts
-
-SmartStock compares the current stock level against a defined minimum/reorder threshold.
-
-Example:
-
-```text
-Product: Mechanical Keyboard
-Current Stock: 3
-Minimum Stock: 10
-
-⚠️ LOW STOCK
-Reorder Recommended
-```
-
-This allows warehouse operators to identify products requiring replenishment before they reach zero inventory.
-
-### 🏢 5. Multi-Client Inventory
-
-Designed with the **3PL use case** in mind.
-
-Future multi-client functionality will allow logistics providers to:
-
-* Manage multiple clients
-* Maintain separate inventory records
-* View inventory by client
-* Prevent cross-client inventory confusion
-
-### 📊 6. Inventory Intelligence — Roadmap
-
-Future versions will introduce:
-
-* ABC inventory classification
-* Dead-stock detection
-* Demand forecasting
-* Inventory prioritization
-* Data-driven reorder recommendations
-
----
-
-## 🖥️ Current MVP
+SmartStock provides a centralized inventory interface that combines **basic inventory tracking with decision support**.
 
 The current prototype focuses on the most important operational workflow:
 
-| Capability                    | Status        |
-| ----------------------------- | ------------- |
-| Product/SKU management        | ✅ Implemented |
-| Inventory dashboard           | ✅ Implemented |
-| Inventory search              | ✅ Implemented |
-| Barcode entry                 | ✅ Implemented |
-| Barcode scanning              | ✅ Implemented |
-| Stock level monitoring        | ✅ Implemented |
-| Low-stock warnings            | ✅ Implemented |
-| Stock-in / stock-out workflow | 🔄 MVP        |
-| Multi-client management       | 🔜 Planned    |
-| ABC classification            | 🔜 Planned    |
-| Dead-stock detection          | 🔜 Planned    |
-| Demand forecasting            | 🔜 Planned    |
+```text
+Identify Product
+      ↓
+Track Stock
+      ↓
+Monitor Inventory Level
+      ↓
+Compare with Reorder Point
+      ↓
+Show Low-Stock Alert
+```
 
-> **Note:** Advanced analytics and forecasting are planned extensions and are not presented as completed functionality in the current hackathon prototype.
+The system is designed as a foundation that can later be extended with multi-client management and advanced inventory analytics.
+
+---
+
+## ✨ Current Features
+
+### 📷 Barcode-Based Inventory Workflow
+
+SmartStock supports:
+
+* Barcode scanning using a device camera
+* Manual barcode entry
+* Product identification through barcode/SKU information
+* Faster inventory lookup compared with manual searching
+
+### 📦 Inventory Management
+
+The current prototype provides:
+
+* Product/SKU information
+* Inventory visibility
+* Stock-level monitoring
+* Product search
+* Inventory status information
+
+### ⚠️ Low-Stock Alerts
+
+SmartStock compares the available inventory against a configured reorder point.
+
+```text
+IF Current Stock ≤ Reorder Point
+        ↓
+   LOW STOCK
+        ↓
+ Reorder Recommended
+```
+
+This helps warehouse operators identify products that may require replenishment.
+
+---
+
+## 🔄 Development Status
+
+To keep the project transparent, the current implementation is divided into three categories.
+
+| Feature                          | Status               |
+| -------------------------------- | -------------------- |
+| Barcode-based inventory workflow | ✅ Implemented        |
+| Manual barcode entry             | ✅ Implemented        |
+| Inventory search                 | ✅ Implemented        |
+| Stock monitoring                 | ✅ Implemented        |
+| Low-stock alerts                 | ✅ Implemented        |
+| Stock-in workflow                | 🔄 MVP / In Progress |
+| Stock-out workflow               | 🔄 MVP / In Progress |
+| Multi-client inventory           | 🔜 Future            |
+| ABC inventory classification     | 🔜 Future            |
+| Dead-stock detection             | 🔜 Future            |
+| Demand forecasting               | 🔜 Future            |
+
+> **Important:** Features marked as **Future** are part of the planned product roadmap and are not presented as completed functionality in the current hackathon prototype.
 
 ---
 
 ## 🏗️ System Architecture
 
 ```text
-                    ┌──────────────────────┐
-                    │      User / Admin    │
-                    └──────────┬───────────┘
+                    ┌─────────────────────┐
+                    │       User          │
+                    │ Warehouse Operator  │
+                    └──────────┬──────────┘
                                │
                                ▼
-                    ┌──────────────────────┐
-                    │   React / Next.js    │
-                    │   Tailwind CSS UI    │
-                    └──────────┬───────────┘
+                    ┌─────────────────────┐
+                    │ React / Next.js     │
+                    │ Tailwind CSS        │
+                    │ Frontend            │
+                    └──────────┬──────────┘
                                │
-                         REST API
-                               │
-                               ▼
-                    ┌──────────────────────┐
-                    │      FastAPI         │
-                    │ Backend Application   │
-                    └──────────┬───────────┘
-                               │
-                    ┌──────────▼───────────┐
-                    │ SQLAlchemy / Pydantic│
-                    │   Data Layer         │
-                    └──────────┬───────────┘
+                            REST API
                                │
                                ▼
-                    ┌──────────────────────┐
-                    │ PostgreSQL / SQLite  │
-                    │     Database         │
-                    └──────────────────────┘
+                    ┌─────────────────────┐
+                    │ FastAPI             │
+                    │ Backend             │
+                    └──────────┬──────────┘
+                               │
+                    ┌──────────▼──────────┐
+                    │ SQLAlchemy          │
+                    │ Pydantic            │
+                    │ Data Layer          │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │ PostgreSQL / SQLite │
+                    │ Database            │
+                    └─────────────────────┘
 ```
 
 ---
@@ -208,27 +168,27 @@ The current prototype focuses on the most important operational workflow:
 
 ### Frontend
 
-* **React**
-* **Next.js**
-* **Tailwind CSS**
+* React
+* Next.js
+* Tailwind CSS
 
 ### Backend
 
-* **Python**
-* **FastAPI**
-* **SQLAlchemy**
-* **Pydantic**
+* Python
+* FastAPI
+* SQLAlchemy
+* Pydantic
 
 ### Database
 
-* **PostgreSQL**
-* **SQLite** for lightweight/local development
+* PostgreSQL
+* SQLite for lightweight/local development
 
 ### Deployment & Development
 
-* **Vercel**
-* **Render**
-* **Docker**
+* Vercel
+* Render
+* Docker
 
 ---
 
@@ -238,32 +198,34 @@ The current prototype focuses on the most important operational workflow:
 SmartStock/
 │
 ├── backend/
-│   ├── ...
 │   └── FastAPI backend
 │
 ├── frontend/
-│   ├── ...
 │   └── Next.js frontend
 │
 ├── docker-compose.yml
 │
+├── LICENSE
+├── SECURITY.md
+├── CONTRIBUTING.md
+├── CODE_OF_CONDUCT.md
 └── README.md
 ```
 
 ---
 
-## ⚙️ Getting Started
+## ⚙️ Local Setup
 
 ### Prerequisites
 
-Make sure you have the following installed:
+Install the following before running SmartStock locally:
 
 * Node.js
 * npm
 * Python 3.10+
 * Git
 * PostgreSQL or SQLite
-* Docker *(optional)*
+* Docker (optional)
 
 ### 1. Clone the repository
 
@@ -272,13 +234,13 @@ git clone https://github.com/sakshinaik006/SmartStock.git
 cd SmartStock
 ```
 
-### 2. Start the backend
+### 2. Backend Setup
 
 ```bash
 cd backend
 ```
 
-Create and activate a virtual environment:
+Create a virtual environment:
 
 **Windows**
 
@@ -293,25 +255,25 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-Start FastAPI:
+Start the FastAPI server:
 
 ```bash
 uvicorn main:app --reload
 ```
 
-The backend will run locally at:
+Backend:
 
 ```text
 http://localhost:8000
 ```
 
-FastAPI documentation is available at:
+API documentation:
 
 ```text
 http://localhost:8000/docs
 ```
 
-### 3. Start the frontend
+### 3. Frontend Setup
 
 Open a new terminal:
 
@@ -321,19 +283,19 @@ npm install
 npm run dev
 ```
 
-The frontend will be available at:
+Frontend:
 
 ```text
 http://localhost:3000
 ```
 
-> If your actual backend entry file or commands differ, update the commands above to match your repository before submitting.
+> If the backend entry point or commands change during development, update these instructions to match the repository.
 
 ---
 
-## 🐳 Running with Docker
+## 🐳 Docker
 
-SmartStock also includes Docker configuration for easier local development.
+SmartStock can also be run using Docker.
 
 ```bash
 docker compose up --build
@@ -347,19 +309,26 @@ docker compose down
 
 ---
 
-## 📈 Inventory Decision Logic
+## 📊 Current Decision Logic
 
-SmartStock currently uses a simple rule-based approach for low-stock detection:
+The current prototype uses a simple rule-based reorder-point approach.
 
 ```text
-IF Current Stock ≤ Reorder Point
-        ↓
-   Low Stock Alert
-        ↓
-Reorder Recommended
+Current Stock
+      │
+      ▼
+Compare with Reorder Point
+      │
+      ├── Stock > Reorder Point
+      │       ↓
+      │    Normal
+      │
+      └── Stock ≤ Reorder Point
+              ↓
+        Low-Stock Alert
 ```
 
-This intentionally keeps the MVP simple and explainable.
+This approach is intentionally simple and explainable for the MVP.
 
 Future versions can incorporate:
 
@@ -367,52 +336,56 @@ Future versions can incorporate:
 * Lead time
 * Safety stock
 * Demand variability
-* Seasonal demand
+* Seasonal patterns
 * Forecasted consumption
-
-to produce more advanced reorder recommendations.
 
 ---
 
 ## 🗺️ Roadmap
 
-### Phase 1 — Core Inventory ✅
+### Phase 1 — Core Inventory
 
-* Project architecture
-* Database setup
-* SKU/product management
+**Current MVP**
+
+* Product/SKU management
 * Inventory dashboard
+* Barcode workflow
+* Inventory search
 * Stock monitoring
-* Barcode integration
-* Stock-in / stock-out
-* Reorder point alerts
+* Low-stock alerts
+* Stock-in/out workflow
 
-### Phase 2 — Multi-Client Operations 🔜
+### Phase 2 — Multi-Client Inventory
+
+**Future**
 
 * Client management
 * Client-specific inventory
-* Role-based access
 * Multi-client dashboard
-* Improved transaction history
+* Role-based access
+* Client-level data isolation
+* Transaction history
 
-### Phase 3 — Inventory Intelligence 🔜
+### Phase 3 — Inventory Intelligence
 
-* ABC classification
+**Future**
+
+* ABC inventory classification
 * Dead-stock detection
 * Demand forecasting
 * Safety-stock recommendations
 * Intelligent reorder quantities
 * Inventory risk scoring
 
-### Future Vision 🚀
+### Long-Term Vision
 
 ```text
 Inventory Tracking
-        ↓
+       ↓
 Decision Support
-        ↓
+       ↓
 Predictive Analytics
-        ↓
+       ↓
 Inventory Optimization
 ```
 
@@ -420,47 +393,47 @@ Inventory Optimization
 
 ## 🎯 Expected Impact
 
-SmartStock is designed to help small logistics providers:
+SmartStock aims to help small logistics providers:
 
-* Reduce avoidable stockouts
 * Improve inventory visibility
-* Reduce manual inventory errors
-* Identify products requiring replenishment
-* Simplify warehouse operations
-* Scale inventory management across multiple clients
+* Reduce avoidable stockouts
+* Identify low-stock products earlier
+* Reduce repetitive manual inventory work
+* Improve inventory accuracy
+* Create a foundation for data-driven inventory decisions
 
-The current hackathon prototype demonstrates the core workflow. Quantitative business impact will be evaluated through future user testing and operational data rather than being claimed without evidence.
+Quantitative business impact will be evaluated through future user testing and operational data. No unverified performance claims are made for the current prototype.
 
 ---
 
 ## 🔐 Security & Data Handling
 
-SmartStock is designed with data protection in mind.
+SmartStock follows basic security and data-handling practices appropriate for an MVP.
 
-Key principles include:
+These include:
 
-* Backend API validation using Pydantic
+* Backend API validation
 * Database access through SQLAlchemy
+* Environment variables for configuration and secrets
+* Avoiding committed credentials and sensitive configuration
 * Separation of frontend and backend responsibilities
-* No sensitive credentials committed to the repository
-* Environment variables for deployment configuration
-* Client-level data isolation in the planned multi-client architecture
+* Planned client-level data isolation for the multi-client phase
 
-See [`SECURITY.md`](SECURITY.md) for security and data-handling guidelines.
+For more information, see [`SECURITY.md`](SECURITY.md).
 
 ---
 
 ## 🤝 Contributing
 
-Contributions, suggestions, and improvements are welcome.
+Suggestions, bug reports, and improvements are welcome.
 
-Please read [`CONTRIBUTING.md`](CONTRIBUTING.md) before submitting a pull request.
+Please read [`CONTRIBUTING.md`](CONTRIBUTING.md) before contributing.
 
 ---
 
 ## 📜 License
 
-This project is licensed under the **MIT License**.
+SmartStock is released under the **MIT License**.
 
 See [`LICENSE`](LICENSE) for the complete license text.
 
@@ -476,11 +449,13 @@ See [`LICENSE`](LICENSE) for the complete license text.
 
 * Full-stack architecture
 * FastAPI backend development
-* Database design and integration
-* Frontend development and integration
+* Database modeling
+* Frontend integration
 * Barcode inventory workflow
-* Reorder alert logic
-* Deployment and project documentation
+* Inventory monitoring
+* Low-stock alert logic
+* Deployment
+* Project documentation
 
 ---
 
@@ -488,21 +463,21 @@ See [`LICENSE`](LICENSE) for the complete license text.
 
 **OmniKon National Hackathon 2026**
 
-SmartStock was developed as a lightweight, scalable inventory solution focused on the operational challenges faced by small logistics providers.
+SmartStock is being developed as a lightweight inventory solution focused on improving stock visibility and decision-making for small logistics providers.
 
 ---
 
-## 📬 Project Links
+## 📎 Project Links
 
-| Resource             | Link                                        |
-| -------------------- | ------------------------------------------- |
-| 🌐 Live Demo         | https://smart-stock-teal.vercel.app/#       |
-| 💻 GitHub            | https://github.com/sakshinaik006/SmartStock |
-| 📚 API Documentation | `http://localhost:8000/docs`                |
-| 📜 License           | MIT                                         |
+| Resource     | Link                                        |
+| ------------ | ------------------------------------------- |
+| 🌐 Live Demo | https://smart-stock-teal.vercel.app/        |
+| 💻 GitHub    | https://github.com/sakshinaik006/SmartStock |
+| 📚 API Docs  | `http://localhost:8000/docs`                |
+| 📜 License   | MIT                                         |
 
 ---
 
-## ⭐ If you find SmartStock useful
+## ⭐ Support the Project
 
-Consider giving the repository a ⭐ on GitHub and sharing feedback or suggestions for future development.
+If you find SmartStock useful, consider giving the repository a ⭐ on GitHub.
