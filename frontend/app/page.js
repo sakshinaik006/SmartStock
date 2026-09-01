@@ -7,7 +7,7 @@ export default function Dashboard() {
   const [clientId, setClientId] = useState(1);
 
   useEffect(() => {
-    fetch(http://localhost:8000/api/inventory?client_id= + clientId)
+    fetch("http://localhost:8000/api/inventory?client_id=" + clientId)
       .then(res => res.json())
       .then(data => setInventory(data));
   }, [clientId]);
