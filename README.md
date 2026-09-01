@@ -30,6 +30,7 @@ SmartStock provides a simple, affordable alternative for small logistics provide
 
 ## Project Progress & Roadmap
 * **Phase 1 — Core Inventory:** Project structure, database setup, SKU management, stock-in/out, barcode scanning, reorder points.
+
 This submission describes a proposed, lightweight MVP. Barcode hardware, historical datasets, forecast accuracy, deployment metrics, and user-validation results are not yet available; therefore, 
 the results section defines target outcomes and validation measures rather than claiming measured performance. Items marked Phase 2 or Phase 3 are future extensions beyond the core demo
 * **Phase 2 — Multi-Client Inventory:** Client management, per-client views, multi-client data model.
