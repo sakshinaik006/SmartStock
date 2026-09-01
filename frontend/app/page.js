@@ -6,10 +6,10 @@ export default function Dashboard() {
   const [darkMode, setDarkMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [inventory, setInventory] = useState([
-    { id: 1, sku: "SKU 1001", name: "Wireless Mouse", barcode: "8901234567890", stock: 15, min: 10 },
-    { id: 2, sku: "SKU 1002", name: "Mechanical Keyboard", barcode: "8901234567891", stock: 3, min: 10 },
-    { id: 3, sku: "SKU 1003", name: "USB C Cable", barcode: "8901234567892", stock: 50, min: 20 },
-    { id: 4, sku: "SKU 1004", name: "Headphones", barcode: "8423748938971", stock: 20, min: 10 }
+    { id: 1, sku: "SKU 1001", name: "Wireless Mouse", barcode: "SKU1001", stock: 15, min: 10 },
+    { id: 2, sku: "SKU 1002", name: "Mechanical Keyboard", barcode: "SKU1002", stock: 3, min: 10 },
+    { id: 3, sku: "SKU 1003", name: "USB C Cable", barcode: "SKU1003", stock: 50, min: 20 },
+    { id: 4, sku: "SKU 1004", name: "Headphones", barcode: "SKU1004", stock: 20, min: 10 }
   ]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
@@ -35,7 +35,7 @@ export default function Dashboard() {
         scanner = new Html5Qrcode("reader");
         scanner.start(
           { facingMode: "environment" },
-          { fps: 10, qrbox: { width: 250, height: 250 } },
+          { fps: 20, qrbox: { width: 300, height: 150 } },
           (decodedText) => {
             setSearchQuery(decodedText);
             setShowScanner(false);
@@ -76,7 +76,7 @@ export default function Dashboard() {
   const filteredInventory = inventory.filter(item => 
     item.sku.toLowerCase().includes(searchQuery.toLowerCase()) || 
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.barcode.includes(searchQuery)
+    item.barcode.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const lowStockItems = inventory.filter(item => item.stock < item.min);
