@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { LayoutDashboard, Package, Settings, Search, Moon, Sun, Scan, AlertTriangle, Plus, Minus, Trash2, Camera } from "lucide-react";
+import { LayoutDashboard, Package, Settings, Search, Moon, Sun, Scan, AlertTriangle, Plus, Minus, Trash2, Camera, CheckCircle } from "lucide-react";
 
 export default function Dashboard() {
   const [darkMode, setDarkMode] = useState(false);
@@ -16,6 +16,7 @@ export default function Dashboard() {
   const [manualBarcode, setManualBarcode] = useState("");
   const [newItem, setNewItem] = useState({ sku: "", name: "", barcode: "", stock: 0, min: 0 });
   const [bulkAmounts, setBulkAmounts] = useState({});
+  const [scanMessage, setScanMessage] = useState("");
 
   useEffect(() => {
     if (darkMode) {
@@ -30,15 +31,34 @@ export default function Dashboard() {
     let isComponentMounted = true;
     
     if (showScanner) {
-      import("html5-qrcode").then(({ Html5Qrcode }) => {
+      import("html5-qrcode").then(({ Html5Qrcode, Html5QrcodeSupportedFormats }) => {
         if (!isComponentMounted) return;
+        
+        const config = {
+          fps: 15,
+          qrbox: { width: 280, height: 120 },
+          formatsToSupport: [
+            Html5QrcodeSupportedFormats.CODE_128,
+            Html5QrcodeSupportedFormats.EAN_13,
+            Html5QrcodeSupportedFormats.UPC_A,
+            Html5QrcodeSupportedFormats.QR_CODE
+          ]
+        };
+
         scanner = new Html5Qrcode("reader");
         scanner.start(
           { facingMode: "environment" },
-          { fps: 20, qrbox: { width: 300, height: 150 } },
+          config,
           (decodedText) => {
-            setSearchQuery(decodedText);
+            const matched = inventory.find(item => item.barcode.toLowerCase() === decodedText.toLowerCase());
+            if (matched) {
+              setSearchQuery(decodedText);
+              setScanMessage(`Success: Found ${matched.name}`);
+            } else {
+              setScanMessage(`Product not found for barcode: ${decodedText}`);
+            }
             setShowScanner(false);
+            setTimeout(() => setScanMessage(""), 4000);
           },
           () => {}
         ).catch(err => console.log(err));
@@ -51,12 +71,16 @@ export default function Dashboard() {
         scanner.stop().then(() => scanner.clear()).catch(() => {});
       }
     };
-  }, [showScanner]);
+  }, [showScanner, inventory]);
 
-  const updateStock = (id, change) => {
-    setInventory(inventory.map(item => 
-      item.id === id ? { ...item, stock: Math.max(0, item.stock + change) } : item
-    ));
+  const updateStock = (id, change, isRemoval = false) => {
+    setInventory(inventory.map(item => {
+      if (item.id === id) {
+        const updatedStock = isRemoval ? Math.max(0, item.stock - change) : item.stock + change;
+        return { ...item, stock: updatedStock };
+      }
+      return item;
+    }));
     setBulkAmounts({ ...bulkAmounts, [id]: "" });
   };
 
@@ -137,6 +161,12 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {scanMessage && (
+            <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 rounded-r-xl flex items-center gap-3 text-blue-700 dark:text-blue-300 font-medium">
+              <CheckCircle className="w-5 h-5" /> {scanMessage}
+            </div>
+          )}
+
           {lowStockItems.length > 0 && (
             <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-6 rounded-r-2xl shadow-sm">
               <div className="flex items-center gap-2 text-amber-700 dark:text-amber-500 font-bold mb-3">
@@ -174,7 +204,7 @@ export default function Dashboard() {
                   <tr key={item.id} className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
                     <td className="p-5 text-gray-500 dark:text-gray-400 text-sm">{item.sku}</td>
                     <td className="p-5 font-medium text-gray-800 dark:text-gray-200">{item.name}</td>
-                    <td className="p-5 text-gray-400 text-sm">{item.barcode}</td>
+                    <td className="p-5 text-gray-400 text-sm font-mono">{item.barcode}</td>
                     <td className="p-5">
                       <span className={`px-3 py-1.5 rounded-lg text-xs font-bold ${item.stock < item.min ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'}`}>
                         {item.stock} units
@@ -189,9 +219,9 @@ export default function Dashboard() {
                         value={bulkAmounts[item.id] || ""}
                         onChange={(e) => setBulkAmounts({ ...bulkAmounts, [item.id]: e.target.value })}
                       />
-                      <button onClick={() => updateStock(item.id, Number(bulkAmounts[item.id]) || 1)} className="p-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"><Plus className="w-4 h-4" /></button>
-                      <button onClick={() => updateStock(item.id, -(Number(bulkAmounts[item.id]) || 1))} className="p-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition-colors"><Minus className="w-4 h-4" /></button>
-                      <button onClick={() => deleteItem(item.id)} className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
+                      <button onClick={() => updateStock(item.id, Number(bulkAmounts[item.id]) || 1, false)} className="p-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors" title="Add Stock"><Plus className="w-4 h-4" /></button>
+                      <button onClick={() => updateStock(item.id, Number(bulkAmounts[item.id]) || 1, true)} className="p-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition-colors" title="Remove Stock"><Minus className="w-4 h-4" /></button>
+                      <button onClick={() => deleteItem(item.id)} className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors" title="Delete"><Trash2 className="w-4 h-4" /></button>
                     </td>
                   </tr>
                 ))}
@@ -207,19 +237,32 @@ export default function Dashboard() {
 
         {showScanner && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl w-96 border border-gray-200 dark:border-gray-800 shadow-2xl">
-              <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-white flex items-center gap-2"><Camera className="w-5 h-5"/> Scan or Enter Barcode</h3>
-              <div className="bg-black w-full min-h-[250px] rounded-xl overflow-hidden relative mb-4" id="reader"></div>
+            <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl w-[420px] border border-gray-200 dark:border-gray-800 shadow-2xl">
+              <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-white flex items-center gap-2"><Camera className="w-5 h-5"/> Scan Barcode or Enter Manually</h3>
+              <div className="bg-black w-full h-64 rounded-xl overflow-hidden relative mb-4" id="reader"></div>
               <div className="flex gap-2">
                 <input 
-                  placeholder="Manual Entry" 
-                  className="w-full p-2 border rounded dark:bg-slate-800 dark:border-gray-700 dark:text-white outline-none" 
+                  placeholder="Enter Barcode e.g. SKU1001" 
+                  className="w-full p-2.5 border rounded-xl dark:bg-slate-800 dark:border-gray-700 dark:text-white outline-none" 
                   value={manualBarcode} 
                   onChange={e => setManualBarcode(e.target.value)} 
                 />
-                <button onClick={() => { setSearchQuery(manualBarcode); setShowScanner(false); setManualBarcode(""); }} className="px-4 py-2 bg-blue-600 text-white rounded">Search</button>
+                <button onClick={() => {
+                  if (manualBarcode.trim()) {
+                    setSearchQuery(manualBarcode.trim());
+                    const matched = inventory.find(i => i.barcode.toLowerCase() === manualBarcode.trim().toLowerCase());
+                    if (matched) {
+                      setScanMessage(`Success: Found ${matched.name}`);
+                    } else {
+                      setScanMessage(`Product not found for barcode: ${manualBarcode}`);
+                    }
+                    setShowScanner(false);
+                    setManualBarcode("");
+                    setTimeout(() => setScanMessage(""), 4000);
+                  }
+                }} className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl">Search</button>
               </div>
-              <button onClick={() => setShowScanner(false)} className="w-full mt-4 px-4 py-2 bg-gray-200 dark:bg-slate-700 rounded text-gray-800 dark:text-white">Close</button>
+              <button onClick={() => setShowScanner(false)} className="w-full mt-4 px-4 py-2.5 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 rounded-xl text-gray-800 dark:text-white font-semibold">Close</button>
             </div>
           </div>
         )}
@@ -229,16 +272,16 @@ export default function Dashboard() {
             <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl w-96 border border-gray-200 dark:border-gray-800 shadow-2xl">
               <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">Add New Item</h3>
               <form onSubmit={handleAddItem} className="space-y-4">
-                <input required placeholder="SKU" className="w-full p-2 border rounded dark:bg-slate-800 dark:border-gray-700 dark:text-white outline-none" value={newItem.sku} onChange={e => setNewItem({...newItem, sku: e.target.value})} />
-                <input required placeholder="Product Name" className="w-full p-2 border rounded dark:bg-slate-800 dark:border-gray-700 dark:text-white outline-none" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} />
-                <input placeholder="Barcode" className="w-full p-2 border rounded dark:bg-slate-800 dark:border-gray-700 dark:text-white outline-none" value={newItem.barcode} onChange={e => setNewItem({...newItem, barcode: e.target.value})} />
+                <input required placeholder="SKU" className="w-full p-2.5 border rounded-xl dark:bg-slate-800 dark:border-gray-700 dark:text-white outline-none" value={newItem.sku} onChange={e => setNewItem({...newItem, sku: e.target.value})} />
+                <input required placeholder="Product Name" className="w-full p-2.5 border rounded-xl dark:bg-slate-800 dark:border-gray-700 dark:text-white outline-none" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} />
+                <input required placeholder="Barcode" className="w-full p-2.5 border rounded-xl dark:bg-slate-800 dark:border-gray-700 dark:text-white outline-none" value={newItem.barcode} onChange={e => setNewItem({...newItem, barcode: e.target.value})} />
                 <div className="flex gap-4">
-                  <input required type="number" placeholder="Initial Stock" className="w-full p-2 border rounded dark:bg-slate-800 dark:border-gray-700 dark:text-white outline-none" value={newItem.stock} onChange={e => setNewItem({...newItem, stock: e.target.value})} />
-                  <input required type="number" placeholder="Min Alert" className="w-full p-2 border rounded dark:bg-slate-800 dark:border-gray-700 dark:text-white outline-none" value={newItem.min} onChange={e => setNewItem({...newItem, min: e.target.value})} />
+                  <input required type="number" placeholder="Initial Stock" className="w-full p-2.5 border rounded-xl dark:bg-slate-800 dark:border-gray-700 dark:text-white outline-none" value={newItem.stock} onChange={e => setNewItem({...newItem, stock: e.target.value})} />
+                  <input required type="number" placeholder="Min Alert" className="w-full p-2.5 border rounded-xl dark:bg-slate-800 dark:border-gray-700 dark:text-white outline-none" value={newItem.min} onChange={e => setNewItem({...newItem, min: e.target.value})} />
                 </div>
                 <div className="flex justify-end gap-2 mt-6">
-                  <button type="button" onClick={() => setShowAddModal(false)} className="px-4 py-2 bg-gray-200 dark:bg-slate-700 rounded text-gray-800 dark:text-white">Cancel</button>
-                  <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">Save Item</button>
+                  <button type="button" onClick={() => setShowAddModal(false)} className="px-4 py-2.5 bg-gray-200 dark:bg-slate-700 rounded-xl text-gray-800 dark:text-white font-semibold">Cancel</button>
+                  <button type="submit" className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl">Save Item</button>
                 </div>
               </form>
             </div>
